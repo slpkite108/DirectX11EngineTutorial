@@ -17,6 +17,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 #endif
 {
+
 	// 객체.
 	Engine engine = Engine(hInstance, 1280, 800, L"그래픽스 엔진");
 	
