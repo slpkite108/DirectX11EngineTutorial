@@ -1,5 +1,12 @@
 #pragma once
 #include "D3DApp.h"
+#include "DirectXMath.h"
+#include "Vertex.h"
+#include "ConstantBuffer.h"
+#include "Model.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+
 class Engine : public D3DApp
 {
 public:
@@ -29,9 +36,16 @@ private:
 
 	// IA - Input Assembler. (렌더링 파이프라인 중에 젤 첫 단계.)
 	ID3D11Buffer* vertexBuffer; // 정점 버퍼. (Vertex 전달 용도.)
+	ID3D11Buffer* g_pConstantBuffer;
 	ID3D11InputLayout* inputLayout; // 입력 레이아웃. Vertex에 어떤 정보들(x,y,z,u,v,nx,ny,nz 등)이 담길 지.
 
-	// 점 개수.
-	int vertexCount = 0; // 전달할 때 알려줘야 하기 때문에 갖고 있자.
+
+	Model Sun;
+	Model merc;
+	
+	float width;
+	float height;
+
+	ConstantBuffer gTransform;
 };
 

@@ -2,7 +2,7 @@
 #include <d3dcompiler.h>
 
 Engine::Engine(HINSTANCE hInstance, int width, int height, std::wstring title)
-    : D3DApp(hInstance, width, height, title)
+    : D3DApp(hInstance, width, height, title),width(width),height(height)
 {
 
 }
@@ -55,26 +55,43 @@ int Engine::Run()
 
 void Engine::Update()
 {
+    static float t = 0;
+    t += 0.01;
+    
+    DirectX::XMMATRIX cT = XMMatrixMultiply(XMMatrixMultiply(XMMatrixScaling(merc.Scale().x, merc.Scale().y,merc.Scale().z), XMMatrixTranslation(1.0f, 0.f, 0.f)), XMMatrixRotationRollPitchYaw(0.f, t*3, 0.f));
+    Sun.UpdateBuffers(deviceContext);
+    merc.UpdateCustomMatrix(deviceContext,cT);
 }
 
 void Engine::DrawScene()
 {
     // 색상 고르기.
-    float backgroundColor[4] = { 0.1f, 0.5f, 0.1f, 1.0f };
+    float backgroundColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
     
     // 지우기 (Clear) - 실제로는 덮어씌워서 색칠하기.
     // Begin Draw(Render) - DX9.
     deviceContext->ClearRenderTargetView(renderTargetView, backgroundColor);
 
+    deviceContext->VSSetShader(vertexShader, NULL, NULL);
+    deviceContext->PSSetShader(pixelShader, NULL, NULL);
+
+    Sun.RenderBuffers(deviceContext);
+    merc.RenderBuffers(deviceContext);
     // 프레임 바꾸기. FrontBuffer <-> BackBuffer.
     swapChain->Present(1, 0);
 }
 
 bool Engine::InitializeScene()
 {
+    gTransform = {
+        DirectX::XMMatrixIdentity(),
+        DirectX::XMMatrixLookAtLH(DirectX::XMVectorSet(0.f,1.f,-5.f,0.f), DirectX::XMVectorSet(0.f,1.f,0.f,0.f), DirectX::XMVectorSet(0.f,1.f,0.f,0.f)),
+        DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PI / 2.0f,width / float(height),0.01f,1000.0f)
+    };
+
     // VS 컴파일
     HRESULT result = D3DCompileFromFile(
-        L"..//shaders//BasicVS.hlsl",
+        L"..//DirectXTutorial04//BasicVS.hlsl",
         NULL,
         NULL,
         "main", // wchar(와일드 캐릭터) 아니라서 L 안 붙여도 됨.
@@ -98,7 +115,7 @@ bool Engine::InitializeScene()
     // VS랑 하는 방식은 똑같음. 파일명이랑 변수명만 조금씩 바꿔주자.
     // PS 컴파일.
     result = D3DCompileFromFile(
-        L"..//shaders//BasicPS.hlsl",
+        L"..//DirectXTutorial04//BasicPS.hlsl",
         NULL,
         NULL,
         "main",
@@ -121,32 +138,19 @@ bool Engine::InitializeScene()
 
     // 정점 데이터 만들기.
 
-    // 정점 데이터 설정하기.
-
-    // 정점에 대한 명세 만들기 (입력 레이아웃).
-    //LPCSTR SemanticName;
-    //UINT SemanticIndex;
-    //DXGI_FORMAT Format;
-    //UINT InputSlot;
-    //UINT AlignedByteOffset;
-    //D3D11_INPUT_CLASSIFICATION InputSlotClass;
-    //UINT InstanceDataStepRate;
-    D3D11_INPUT_ELEMENT_DESC layout[] =
+    //if (model.InitializeBuffers(device, vertexShaderBuffer, gTransform)==false)
+    if (Sun.InitializeBuffers(device, vertexShaderBuffer, "sphere.fbx", gTransform) == false)
     {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
-    };
+        return false;
+    }
+    Sun.SetPosition(0.f, 0.f, 0.f);
+    Sun.SetScale(0.5f, 0.5f, 0.5f);
 
-    // 입력 레이아웃 설정.
-    result = device->CreateInputLayout(
-        layout,
-        ARRAYSIZE(layout),
-        vertexShaderBuffer->GetBufferPointer(),
-        vertexShaderBuffer->GetBufferSize(),
-        &inputLayout
-    );
-    if (FAILED(result)) { MessageBox(nullptr, L"입력 레이아웃 생성 실패", L"오류", 0); }
-
-    // 명세 설정하기.
-
+    if (merc.InitializeBuffers(device, vertexShaderBuffer, "sphere.fbx", gTransform) == false)
+    {
+        return false;
+    }
+    merc.SetScale(0.1f, 0.1f, 0.1f);
+   
     return true;
 }
