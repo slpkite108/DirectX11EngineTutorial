@@ -10,6 +10,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "InputLayout.h"
+#include "ColorBuffer.h"
 
 
 using Microsoft::WRL::ComPtr;
@@ -47,6 +48,10 @@ public:
 	void SetScale(float x, float y, float z);
 	void SetScale(XMFLOAT3 scale);
 
+	XMFLOAT4& Color() { return color; }
+	void SetColor(float r, float g, float b, float a);
+	void SetColor(XMFLOAT4 color);
+
 
 protected:
 	//int vertexCount;				// 정점 개수.
@@ -64,4 +69,8 @@ protected:
 	XMFLOAT3 position;
 	XMFLOAT3 rotation;
 	XMFLOAT3 scale;
+
+	ColorBuffer colorBuffer;
+	//색성정보
+	XMFLOAT4 color;
 };

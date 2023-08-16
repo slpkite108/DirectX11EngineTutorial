@@ -52,6 +52,11 @@ bool Model::InitializeBuffers(ID3D11Device* device, ID3DBlob* vertexShaderBuffer
         return false;
     }
 
+    if (colorBuffer.Create(device) == false)
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -88,6 +93,11 @@ bool Model::InitializeBuffers(ID3D11Device* device, ID3DBlob* vertexShaderBuffer
 
     // 상수 버퍼.
     if (transform.Create(device,gTransform) == false)
+    {
+        return false;
+    }
+
+    if (colorBuffer.Create(device) == false)
     {
         return false;
     }

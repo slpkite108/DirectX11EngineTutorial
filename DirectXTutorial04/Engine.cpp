@@ -85,7 +85,7 @@ bool Engine::InitializeScene()
 {
     gTransform = {
         DirectX::XMMatrixIdentity(),
-        DirectX::XMMatrixLookAtLH(DirectX::XMVectorSet(0.f,1.f,-5.f,0.f), DirectX::XMVectorSet(0.f,1.f,0.f,0.f), DirectX::XMVectorSet(0.f,1.f,0.f,0.f)),
+        DirectX::XMMatrixLookAtLH(DirectX::XMVectorSet(0.f,5.f,-5.f,0.f), DirectX::XMVectorSet(0.f,1.f,0.f,0.f), DirectX::XMVectorSet(0.f,1.f,1.f,0.f)),
         DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PI / 2.0f,width / float(height),0.01f,1000.0f)
     };
 
@@ -145,12 +145,14 @@ bool Engine::InitializeScene()
     }
     Sun.SetPosition(0.f, 0.f, 0.f);
     Sun.SetScale(0.5f, 0.5f, 0.5f);
+    Sun.SetColor(1.f,1.f,0.f,1.f);
 
     if (merc.InitializeBuffers(device, vertexShaderBuffer, "sphere.fbx", gTransform) == false)
     {
         return false;
     }
     merc.SetScale(0.1f, 0.1f, 0.1f);
+    merc.SetColor(0.5f, 0.4f, 0.3f, 1.0f);
    
     return true;
 }

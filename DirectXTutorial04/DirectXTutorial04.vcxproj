@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ColorBuffer.cpp" />
     <ClCompile Include="D3DApp.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
@@ -151,6 +152,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ColorBuffer.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="D3DApp.h" />
     <ClInclude Include="Engine.h" />

@@ -3,9 +3,11 @@
 Mesh::Mesh()
     : vertexBuffer(), indexBuffer(), inputLayout(),
     transform(), // transform(TransformBuffer())랑 같음.
-    position(XMFLOAT3(0.f,0.f,0.f)),
+    position(XMFLOAT3(0.f, 0.f, 0.f)),
     rotation(XMFLOAT3(0.f, 0.f, 0.f)),
-    scale(XMFLOAT3(1.f, 1.f, 1.f))
+    scale(XMFLOAT3(1.f, 1.f, 1.f)),
+    colorBuffer(),
+    color(XMFLOAT4(1.f,0.f,1.f,1.f))
 {
 }
 
@@ -29,6 +31,7 @@ void Mesh::BindBuffers(ID3D11DeviceContext* deviceContext)
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 선을 그릴 때는 LineList.
 
     transform.Bind(deviceContext);
+    colorBuffer.Bind(deviceContext);
 }
 
 void Mesh::DrawBuffers(ID3D11DeviceContext* deviceContext)
@@ -41,11 +44,13 @@ void Mesh::DrawBuffers(ID3D11DeviceContext* deviceContext)
 void Mesh::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 {
     transform.transformMatrix.mWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixMultiply(XMMatrixScalingFromVector(XMLoadFloat3(&scale)), XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rotation))), XMMatrixTranslationFromVector(XMLoadFloat3(&position))));
+    colorBuffer.color = color;
 }
 
 void Mesh::UpdateCustomMatrix(ID3D11DeviceContext* deviceContext, XMMATRIX cTransform)
 {
     transform.transformMatrix.mWorld = XMMatrixTranspose(cTransform);
+    colorBuffer.color = color;
 }
 
 void Mesh::SetPosition(float x, float y, float z)
@@ -76,4 +81,14 @@ void Mesh::SetScale(float x, float y, float z)
 void Mesh::SetScale(XMFLOAT3 scale)
 {
     this->scale = scale;
+}
+
+void Mesh::SetColor(float r, float g, float b, float a)
+{
+    color = XMFLOAT4(r,g,b,a);
+}
+
+void Mesh::SetColor(XMFLOAT4 color)
+{
+    this->color = color;
 }
