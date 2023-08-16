@@ -16,7 +16,7 @@ ResourceLoader::~ResourceLoader()
 void ResourceLoader::LoadModel(std::string filename, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices)
 {
 	// 리소스 경로 추가.
-	filename = std::string("..//res//model//") + filename;
+	filename = std::string("res//model//") + filename;
 
 	// 옵션 설정.
 
