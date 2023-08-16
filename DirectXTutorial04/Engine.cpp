@@ -58,9 +58,11 @@ void Engine::Update()
     static float t = 0;
     t += 0.01;
     
-    DirectX::XMMATRIX cT = XMMatrixMultiply(XMMatrixMultiply(XMMatrixScaling(merc.Scale().x, merc.Scale().y,merc.Scale().z), XMMatrixTranslation(1.0f, 0.f, 0.f)), XMMatrixRotationRollPitchYaw(0.f, t*3, 0.f));
+    DirectX::XMMATRIX mercMat = XMMatrixMultiply(XMMatrixMultiply(XMMatrixScaling(merc.Scale().x, merc.Scale().y,merc.Scale().z), XMMatrixTranslation(1.0f, 0.f, 0.f)), XMMatrixRotationRollPitchYaw(0.f, t*3, 0.f));
+    DirectX::XMMATRIX venusMat = XMMatrixMultiply(XMMatrixMultiply(XMMatrixScaling(merc.Scale().x, merc.Scale().y, merc.Scale().z), XMMatrixTranslation(3.0f, 0.f, 0.f)), XMMatrixRotationRollPitchYaw(0.f, t, 0.f));
     Sun.UpdateBuffers(deviceContext);
-    merc.UpdateCustomMatrix(deviceContext,cT);
+    merc.UpdateCustomMatrix(deviceContext, mercMat);
+    venus.UpdateCustomMatrix(deviceContext, venusMat);
 }
 
 void Engine::DrawScene()
@@ -71,12 +73,14 @@ void Engine::DrawScene()
     // 지우기 (Clear) - 실제로는 덮어씌워서 색칠하기.
     // Begin Draw(Render) - DX9.
     deviceContext->ClearRenderTargetView(renderTargetView, backgroundColor);
+    deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     deviceContext->VSSetShader(vertexShader, NULL, NULL);
     deviceContext->PSSetShader(pixelShader, NULL, NULL);
 
     Sun.RenderBuffers(deviceContext);
     merc.RenderBuffers(deviceContext);
+    venus.RenderBuffers(deviceContext);
     // 프레임 바꾸기. FrontBuffer <-> BackBuffer.
     swapChain->Present(1, 0);
 }
@@ -85,7 +89,7 @@ bool Engine::InitializeScene()
 {
     gTransform = {
         DirectX::XMMatrixIdentity(),
-        DirectX::XMMatrixLookAtLH(DirectX::XMVectorSet(0.f,5.f,-5.f,0.f), DirectX::XMVectorSet(0.f,1.f,0.f,0.f), DirectX::XMVectorSet(0.f,1.f,1.f,0.f)),
+        DirectX::XMMatrixLookAtLH(DirectX::XMVectorSet(0.f,1.f,-5.f,0.f), DirectX::XMVectorSet(0.f,1.f,0.f,0.f), DirectX::XMVectorSet(0.f,1.f,0.f,0.f)),
         DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PI / 2.0f,width / float(height),0.01f,1000.0f)
     };
 
@@ -152,7 +156,14 @@ bool Engine::InitializeScene()
         return false;
     }
     merc.SetScale(0.1f, 0.1f, 0.1f);
-    merc.SetColor(0.5f, 0.4f, 0.3f, 1.0f);
+    merc.SetColor(0.5f, 0.5f, 0.5f, 1.0f);
+
+    if (venus.InitializeBuffers(device, vertexShaderBuffer, "sphere.fbx", gTransform) == false)
+    {
+        return false;
+    }
+    venus.SetScale(0.1f, 0.1f, 0.1f);
+    venus.SetColor(0.925f, 0.770f, 0.527f, 1.0f);
    
     return true;
 }

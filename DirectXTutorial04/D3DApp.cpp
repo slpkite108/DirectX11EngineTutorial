@@ -78,9 +78,9 @@ bool D3DApp::InitializeDirect3D()
     // 백버퍼 정보를 복사해서 주니까 받자.
     ID3D11Texture2D* backbufferTexture;
     result = swapChain->GetBuffer(
-        NULL,
+        0,
         __uuidof(ID3D11Texture2D), // 타입 정보 명시. uuidof : 여기에 백퍼버 정보 달라.
-        (void**)(&backbufferTexture) // 타입에 상관없이 주소값을 받고 싶을 때 void 포인터.
+        (LPVOID*)(&backbufferTexture) // 타입에 상관없이 주소값을 받고 싶을 때 void 포인터.
     );
 
     // 오류 검사.
@@ -105,6 +105,52 @@ bool D3DApp::InitializeDirect3D()
         return false;
     }
 
+    //depth
+    D3D11_TEXTURE2D_DESC descDepth;
+    ZeroMemory(&descDepth, sizeof(descDepth));
+    descDepth.Width = (float)Window::Width();
+    descDepth.Height = (float)Window::Height();
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+
+    result = device->CreateTexture2D(
+        &descDepth,
+        NULL,
+        &depthBuffer
+    );
+
+    if (FAILED(result))
+    {
+        MessageBox(nullptr, L"깊이 버퍼 생성 실패", L"오류", 0);
+        return false;
+    }
+
+    //stencilbuffer
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+    ZeroMemory(&descDSV, sizeof(descDSV));
+    descDSV.Format = descDepth.Format;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+
+    result = device->CreateDepthStencilView(
+        depthBuffer,
+        &descDSV,
+        &depthStencilView
+    );
+
+    if (FAILED(result))
+    {
+        MessageBox(nullptr, L"스텐실 뷰 생성 실패", L"오류", 0);
+        return false;
+    }
+
     // 임시 버퍼(리소스) 해제.
     backbufferTexture->Release(); // delete 키워드와 하는 일이 같지만, Release로 해야 안전하게 해제 가능.
 
@@ -112,7 +158,7 @@ bool D3DApp::InitializeDirect3D()
     deviceContext->OMSetRenderTargets( // OM : Output Merger 합쳐준다는 의미. 얘는 성공 실패 반환 안 함.
         1, // 화면을 4개로 나눈다면, 4가 입력됨.
         &renderTargetView,
-        nullptr
+        depthStencilView
     );
 
     // 뷰포트(화면) - 크기 설정.

@@ -42,6 +42,7 @@ private:
 
 	Model Sun;
 	Model merc;
+	Model venus;
 	
 	float width;
 	float height;

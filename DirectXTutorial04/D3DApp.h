@@ -27,6 +27,8 @@ protected:
 	ID3D11DeviceContext* deviceContext;			// d3d 장치문맥.
 	IDXGISwapChain* swapChain;					// 스왑체인.
 	ID3D11RenderTargetView* renderTargetView;	// 렌더타겟.
+	ID3D11Texture2D* depthBuffer;
+	ID3D11DepthStencilView* depthStencilView;
 
 	D3D11_VIEWPORT viewport;					// 뷰포트 (화면)
 };
